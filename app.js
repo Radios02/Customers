@@ -25,27 +25,44 @@ app.get('/customers/:id', (req, res) => {
 });
 
 app.post('/customers', express.json(), (req, res) => {
-  const newCustomer = {
-    id: customers.length + 1,
-    name: req.body.name,
-    email: req.body.email,
-  };
-  customers.push(newCustomer);
-  res.status(201).json(newCustomer);
-});
-
-app.put('/customers/:id', express.json(), (req, res) => {
-  const customerId = parseInt(req.params.id, 10);
-  const customer = customers.find(c => c.id === customerId);
+    const { name, email } = req.body;
   
-  if (customer) {
-    customer.name = req.body.name || customer.name;
-    customer.email = req.body.email || customer.email;
+    // Ellenőrzés
+    if (!name || !email) {
+      return res.status(400).json({ error: 'A name és email mezők kötelezőek!' });
+    }
+  
+    const newCustomer = {
+      id: customers.length + 1,
+      name,
+      email,
+    };
+  
+    customers.push(newCustomer);
+    res.status(201).json(newCustomer);
+  });
+  
+
+  app.put('/customers/:id', express.json(), (req, res) => {
+    const customerId = parseInt(req.params.id, 10);
+    const customer = customers.find(c => c.id === customerId);
+  
+    if (!customer) {
+      return res.status(404).json({ message: 'Customer not found' });
+    }
+  
+    // ellenőrizd, hogy minden kötelező mező meg van-e adva
+    const { name, email } = req.body;
+    if (!name || !email) {
+      return res.status(400).json({ message: 'Name and email are required' });
+    }
+  
+    // ha minden megvan, frissítsd az adatokat
+    customer.name = name;
+    customer.email = email;
+  
     res.json(customer);
-  } else {
-    res.status(404).json({ message: 'Customer not found' });
-  }
-});
+  });
 
 app.delete('/customers/:id', (req, res) => {
   const customerId = parseInt(req.params.id, 10);
