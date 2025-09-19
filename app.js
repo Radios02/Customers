@@ -4,13 +4,13 @@ const app = express();
 const PORT = 3000;
 
 const customers = [
-    { id: 1, name: 'John Doe', email: "jhon.doe@icloud.com" },
-    { id: 2, name: 'Jane Smith', email: "jane.smith@gmail.com"},
-    { id: 3, name: 'Alice Johnson', email: "alice.johnson@citromail.com" },
+    { id: 1, name: 'Ave Ken', email: "ave.ken@icloud.com" },
+    { id: 2, name: 'Jonathan Smith', email: "jonathan.smith@citromail.com"},
+    { id: 3, name: 'Albert Don', email: "albert.don@gmail.com" },
 ];
 
 app.get('/customers', (req, res) => {
-  res.json(customers);
+  res.status(200).json(customers);
 });
 
 app.get('/customers/:id', (req, res) => {
@@ -25,22 +25,23 @@ app.get('/customers/:id', (req, res) => {
 });
 
 app.post('/customers', express.json(), (req, res) => {
-    const { name, email } = req.body;
-  
-    // Ellenőrzés
-    if (!name || !email) {
-      return res.status(400).json({ error: 'A name és email mezők kötelezőek!' });
-    }
-  
-    const newCustomer = {
-      id: customers.length + 1,
-      name,
-      email,
-    };
-  
-    customers.push(newCustomer);
-    res.status(201).json(newCustomer);
-  });
+  const { name, email } = req.body;
+
+  if (!name || !email) {
+    return res.status(400).json({ error: 'A name és email mezők kötelezőek!' });
+  }
+
+  const nextId = customers.length ? Math.max(...customers.map(c => c.id)) + 1 : 1;
+
+  const newCustomer = {
+    id: nextId,
+    name,
+    email,
+  };
+
+  customers.push(newCustomer);
+  res.status(201).json(newCustomer);
+});
   
 
   app.put('/customers/:id', express.json(), (req, res) => {
